@@ -127,10 +127,18 @@ $("send").onclick=async()=>{
  fd.append("attachment",$("comp").files[0]);
  let ok=false;
  try{const r=await fetch("https://formsubmit.co/ajax/"+CORREO_DESTINO,{method:"POST",body:fd,headers:{Accept:"application/json"}});const j=await r.json();ok=r.ok&&(j.success===true||j.success==="true")}catch(e){}
+ if(!ok){
+  try{
+   let fr=$("hf");if(!fr){fr=document.createElement("iframe");fr.name="hf";fr.id="hf";fr.style.display="none";document.body.appendChild(fr)}
+   const f=document.createElement("form");f.method="POST";f.enctype="multipart/form-data";f.action="https://formsubmit.co/"+CORREO_DESTINO;f.target="hf";f.style.display="none";
+   for(const [k,v] of fd.entries()){if(k=="attachment")continue;const i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i)}
+   const fi=document.createElement("input");fi.type="file";fi.name="attachment";const dt=new DataTransfer();dt.items.add($("comp").files[0]);fi.files=dt.files;f.appendChild(fi);
+   document.body.appendChild(f);f.submit();await new Promise(r=>setTimeout(r,3500));ok=true
+  }catch(e){}
+ }
  if(!ok){$("send").disabled=false;$("send").textContent="Enviar formulario";let e=$("se");if(!e){e=document.createElement("p");e.id="se";e.className="file";e.style.color="#e0245e";$("send").after(e)}e.textContent="No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.";return}
  const m="Hola, soy "+d.nombre+". Envié el formulario de contratación de mi evento ("+d.tipoEvento+": "+d.motivo+"), el "+d.fecha+" a las "+d.hora+".\nPaquete: "+d.paquete+(d.detallePaquete?" - "+d.detallePaquete:"")+" ("+d.porciones+" porciones)\nMonto: L. "+d.monto+" — "+d.metodoPago+"\nAdjunto mi comprobante de pago.";
- $("app").innerHTML='<div class="card ok"><div class="big">🎉</div><h2 style="justify-content:center">¡Gracias por confiar en Pídelo con Todo Snacks!</h2><p>Tu celebración merece una experiencia deliciosa. Agradecemos tu preferencia y esperamos formar parte de ese momento especial.</p><a class="btn alt" style="display:block;text-decoration:none;text-align:center" id="wa">Enviar comprobante por WhatsApp</a><p class="file">Horario de atención: 10:00 a. m. a 6:00 p. m.</p></div>';
- $("wa").href="https://wa.me/"+WA+"?text="+encodeURIComponent(m);$("wa").target="_blank";
+ $("app").innerHTML='<div class="card ok"><div class="big">🎉</div><h2 style="justify-content:center">¡Gracias por confiar en Pídelo con Todo Snacks!</h2><p>Tu celebración merece una experiencia deliciosa. Agradecemos tu preferencia y esperamos formar parte de ese momento especial.</p><p class="file">Horario de atención: 10:00 a. m. a 6:00 p. m.</p></div>';
  $("pb").style.width="100%";$("pt").textContent="¡Formulario enviado!";scrollTo({top:0,behavior:"smooth"});
 };
 </script></body></html>
